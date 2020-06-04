@@ -6,12 +6,16 @@ $input = json_decode(file_get_contents('php://input'), true);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $uri === '/sync') {
     $url = 'https://eplaceapp.nl/api/anonyguest/'.$input['event_id'].'/evite-2019-KJDSGHAGD/';
-    $to_be_shared = $db->Select('connector', '*', array('event_id' => $input['event_id'], '!updated_at' => new DatabaseFunc('proccessed_at')));
+    $to_be_shared = $db->Select('connector', '*', array('event_id' => $input['event_id']));
+    
+    $to_be_shared = array_filter($to_be_shared, function($e) {
+        return $e['updated_at'] !== $e['proccessed_at'] || !$e['updated_at'];
+    });
     foreach($to_be_shared as $connector) {
         $ch = curl_init($url);
 
         $data = array(
-            "GuestId" => $connector['id'],
+            "GuestId" => $connector['seat_id'],
             "FirstName" => $connector['firstname']?:'',
             "MiddleName" => $connector['middlename']?:'',
             "LastName" =>  $connector['lastname']?:'',
@@ -27,7 +31,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $uri === '/sync') {
             "EmailAddress" => $connector['emailaddress']?:'',
             "Remarks" =>  $connector['remarks']?:'',
         );
-        $payload = json_encode($data);
+        $newGuest = [];
+        
+        $newGuest['proccessed_at'] = new DatabaseFunc('Now()');
+        $db->Update('connector', ['seat_id' => $connector['seat_id']], $newGuest);
+    
+
+        $payload = json_encode($    );
 
         curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);                                                                   
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST"); 
@@ -39,48 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $uri === '/sync') {
 
         curl_close($ch);
     }
-    $data = (json_decode(file_get_contents($url), true));
-    $mapper = [
-        'GuestId' => 'id',
-        'AdditionalJsonData' => 'additionaljsondata',
-        'AmountOfPersons' => 'amountofpersons',
-        'City' => 'city',
-        'CompanyName' => 'companyname',
-        'Country' => 'country',
-        'DepartmentGroup' => 'departmentgroup',
-        'EmailAddress' => 'emailaddress',
-        'FirstName' => 'firstname',
-        'GuestOfAttendee' => 'guestofattendee',
-        'HouseNumber' => 'housenumber',
-        'JobFunction' => 'jobfunction',
-        'LastName' => 'lastname',
-        'MiddleName'=>'middlename',
-        'NamePartner'=>'namepartner',
-        'PostalCode'=>'postalcode',
-        'Priority' => 'priority',
-        'Remarks' => 'remarks',
-        'RowNumber' => 'rownumber',
-        'SeatNumber' => 'seatnumber',
-        'Section' => 'section',
-        'Sex' => 'sex',
-        'StreetPostbus' => 'streetpostbus'
-    ];
-    foreach ($data['Guests'] as $guest) {
-        $dbGuest = $db->SelectOne('connector', '*', ['id' => $guest['GuestId']]);
-        $newGuest = [];
-        /*foreach($guest as $k => $v) {
-            if(array_key_exists($k, $mapper)) {
-                $newGuest[$mapper[$k]] = $v;
-            }
-        }*/
-        $newGuest['id'] = $guest['GuestId'];
-        $newGuest['proccessed_at'] = new DatabaseFunc('Now()');
-        if ($dbGuest) {
-            $db->Update('connector', ['id' => $guest['GuestId']], $newGuest);
-        } else {
-            $db->Insert('connector', $newGuest);
-        }
-    }
+    
     echo json_encode($data);
 } else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $event = $db->SelectOne('events', 'event_id', ['event_id' => $input['event_id']]);
