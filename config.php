@@ -9,4 +9,5 @@ $db = new Database('mysql:host='.getenv('DB_HOST').';port='.getenv('DB_PORT').';
 
 if (!isset($_GET['code']) || $_GET['code'] !== 'qvgK3vq0eGLPgCUD4EIL4pqzGVb0ruA1') {
     http_response_code(403);
+    die();
 }
