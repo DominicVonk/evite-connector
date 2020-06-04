@@ -4,7 +4,7 @@ header('Content-Type: application/json');
 $uri = strtok($_SERVER["REQUEST_URI"], '?');
 $input = json_decode(file_get_contents('php://input'), true);
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && $uri === '/import') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $uri === '/sync') {
     $url = 'https://eplaceapp.nl/api/anonyguest/'.$input['event_id'].'/evite-2019-KJDSGHAGD/';
     $to_be_shared = $db->Select('connector', '*', array('event_id' => $input['event_id'], '!updated_at' => new DatabaseFunc('proccessed_at')));
     foreach($to_be_shared as $connector) {

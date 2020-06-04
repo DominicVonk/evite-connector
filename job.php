@@ -5,7 +5,7 @@ require('config.php');
 $events = $db->Select('events', '*', ['enabled' => 1]);
 
 foreach($events as $event) {
-    $ch = curl_init(getenv('SELF_URL') . '/import?code=' . getenv('SELF_CODE'));
+    $ch = curl_init(getenv('SELF_URL') . '/sync?code=' . getenv('SELF_CODE'));
 
     $data = array(
         "event_id" => $event['event_id']
