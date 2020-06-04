@@ -68,12 +68,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $uri === '/sync') {
     foreach ($data['Guests'] as $guest) {
         $dbGuest = $db->SelectOne('connector', '*', ['id' => $guest['GuestId']]);
         $newGuest = [];
-        foreach($guest as $k => $v) {
+        /*foreach($guest as $k => $v) {
             if(array_key_exists($k, $mapper)) {
                 $newGuest[$mapper[$k]] = $v;
             }
-        }
-        $newGuest['event_id'] = $input['event_id'];
+        }*/
+        $newGuest['id'] = $guest['GuestId'];
         $newGuest['proccessed_at'] = new DatabaseFunc('Now()');
         if ($dbGuest) {
             $db->Update('connector', ['id' => $guest['GuestId']], $newGuest);
