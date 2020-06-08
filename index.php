@@ -37,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $uri === '/sync') {
         $db->Update('connector', ['seat_id' => $connector['seat_id']], $newGuest);
     
 
-        $payload = json_encode($newGuest);
+        $payload = json_encode($data);
 
         curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);                                                                   
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST"); 
@@ -50,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $uri === '/sync') {
         curl_close($ch);
     }
     
-    echo json_encode($data);
+    //echo json_encode($data);
 } else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $event = $db->SelectOne('events', 'event_id', ['event_id' => $input['event_id']]);
     if (!$event) {
