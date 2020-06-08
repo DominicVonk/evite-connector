@@ -37,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $uri === '/sync') {
         $db->Update('connector', ['seat_id' => $connector['seat_id']], $newGuest);
     
 
-        $payload = json_encode($    );
+        $payload = json_encode($newGuest);
 
         curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);                                                                   
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST"); 
